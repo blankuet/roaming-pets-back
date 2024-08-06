@@ -1,7 +1,7 @@
 const { Schema, model } = require("mongoose");
 
 // TODO: Please make sure you edit the User model to whatever makes sense in this case
-const hostSchema = new Schema(
+const travelerSchema = new Schema(
   {
     name: {
       type: String,
@@ -18,12 +18,13 @@ const hostSchema = new Schema(
       type: String,
       required: [true, "Password is required."],
     },
-    accommodations: [
-      {
-        type: Schema.Types.ObjectId, ref: "Accommodation",
-      }
-    ]
-
+    pets: {
+        type: Number,
+        required: [true, "Pets is required."],
+    },
+    bookings: [{    
+      type: Schema.Types.ObjectId, ref: "Booking",
+    }],
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`
@@ -34,6 +35,6 @@ const hostSchema = new Schema(
   },
 );
 
-const Host = model("Host", hostSchema);
+const Traveler = model("Traveler", travelerSchema);
 
-module.exports = Host;
+module.exports = Traveler;

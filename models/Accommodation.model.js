@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const { Booking } = require("./Booking.model");
 
 // TODO: Please make sure you edit the User model to whatever makes sense in this case
 const accommodationSchema = new Schema(
@@ -7,22 +8,26 @@ const accommodationSchema = new Schema(
         type: String,
         required: [true, "Accommodation name is required."],
       },
-      location: {
+      address: {
         type: String,
-        required: [true, "Location is required."],
-      },
+        required: [true, "Address is required."],
+      },  
       price: {
         type: Number,
         required: [true, "Price per night is required."],
+      },
+      maxPersons: {
+        type: Number,
+        required: [true, "Max persons is required."],
       },
       description: {
         type: String,
         required: [true, "Description is required."],
       },
-      email: {
-        type: String,
-        required: [true, "Email is required."],
-      },
+      bookings: [{
+        type: Schema.Types.ObjectId, ref: "Booking",
+      }],
+      
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`
