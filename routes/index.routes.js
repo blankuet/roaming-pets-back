@@ -1,5 +1,8 @@
 const express = require("express");
 const router = express.Router();
+const { isAuthenticated } = require("../middleware/jwt.middleware");
+
+const authRoutes = require("./auth.routes");
 
 const authRoutes = require("./auth.routes");
 
