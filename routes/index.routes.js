@@ -4,9 +4,6 @@ const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 const authRoutes = require("./auth.routes");
 
-const authRoutes = require("./auth.routes");
-
-
 router.get("/", (req, res, next) => {
   res.json("All good in here");
 });
