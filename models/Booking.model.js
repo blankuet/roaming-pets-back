@@ -1,5 +1,5 @@
 const { Schema, model } = require("mongoose");
-const { Traveler } = require("./Traveler.model");
+const { Guest } = require("./Guest.model");
 // const validate = require("../middleware/validate");
 
 // TODO: Please make sure you edit the User model to whatever makes sense in this case
@@ -21,10 +21,10 @@ const BookingSchema = new Schema(
       min: Date.now,
       max: "01-01-3024",
     },
-    traveler: [
+    guest: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Traveler",
+        ref: "Guest",
       },
     ],
   },
