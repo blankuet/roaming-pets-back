@@ -1,7 +1,7 @@
 const { Schema, model } = require("mongoose");
 
 // TODO: Please make sure you edit the User model to whatever makes sense in this case
-const travelerSchema = new Schema(
+const guestSchema = new Schema(
   {
     name: {
       type: String,
@@ -35,6 +35,6 @@ const travelerSchema = new Schema(
   },
 );
 
-const Traveler = model("Traveler", travelerSchema);
+const Guest = model("Guest", guestSchema);
 
-module.exports = Traveler;
+module.exports = Guest;
