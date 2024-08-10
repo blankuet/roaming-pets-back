@@ -8,7 +8,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 // Require the User model in order to interact with the database
-const Guest = require("../models/Guest.model");
+const Host = require("../models/Host.model");
 
 // Require necessary (isAuthenticated) middleware in order to control access to specific routes
 const { isAuthenticated } = require("../middleware/jwt.middleware.js");
@@ -18,9 +18,7 @@ const saltRounds = 10;
 
 // POST /auth/signup  - Creates a new user in the database
 router.post("/signup", (req, res, next) => {
-  const { email, password, name, pets } = req.body;
-
-  console.log(req.body)
+  const { email, password, name } = req.body;
 
   // Check if email or password or name are provided as empty strings
   if (email === "" || password === "" || name === "") {
@@ -46,11 +44,11 @@ router.post("/signup", (req, res, next) => {
   }
 
   // Check the users collection if a user with the same email already exists
-  Guest.findOne({ email })
-    .then((foundGuest) => {
+  Host.findOne({ email })
+    .then((foundHost) => {
       // If the user with the same email already exists, send an error response
-      if (foundGuest) {
-        res.status(400).json({ message: "Guest already exists." });
+      if (foundHost) {
+        res.status(400).json({ message: "Host already exists." });
         return;
       }
 
@@ -60,18 +58,18 @@ router.post("/signup", (req, res, next) => {
 
       // Create the new user in the database
       // We return a pending promise, which allows us to chain another `then`
-      return Guest.create({ email, password: hashedPassword, name, pets });
+      return Host.create({ email, password: hashedPassword, name });
     })
-    .then((createdGuest) => {
+    .then((createdHost) => {
       // Deconstruct the newly created user object to omit the password
       // We should never expose passwords publicly
-      const { email, name, _id } = createdGuest;
+      const { email, name, _id } = createdHost;
 
       // Create a new object that doesn't expose the password
-      const guest = { email, name, _id };
+      const host = { email, name, _id };
 
       // Send a json response containing the user object
-      res.status(201).json({ guest: guest });
+      res.status(201).json({ host: host });
     })
     .catch((err) => next(err)); // In this case, we send error handling to the error handling middleware.
 });
@@ -87,20 +85,20 @@ router.post("/login", (req, res, next) => {
   }
 
   // Check the users collection if a user with the same email exists
-  Guest.findOne({ email })
-    .then((foundGuest) => {
-      if (!foundGuest) {
+  Host.findOne({ email })
+    .then((foundHost) => {
+      if (!foundHost) {
         // If the user is not found, send an error response
-        res.status(401).json({ message: "Guest not found." });
+        res.status(401).json({ message: "Host not found." });
         return;
       }
 
       // Compare the provided password with the one saved in the database
-      const passwordCorrect = bcrypt.compareSync(password, foundGuest.password);
+      const passwordCorrect = bcrypt.compareSync(password, foundHost.password);
 
       if (passwordCorrect) {
         // Deconstruct the user object to omit the password
-        const { _id, email, name } = foundGuest;
+        const { _id, email, name } = foundHost;
 
         // Create an object that will be set as the token payload
         const payload = { _id, email, name };
@@ -114,7 +112,7 @@ router.post("/login", (req, res, next) => {
         // Send the token as the response
         res.status(200).json({ authToken: authToken, email: email, name: name });
       } else {
-        res.status(401).json({ message: "Unable to authenticate the Guest" });
+        res.status(401).json({ message: "Unable to authenticate the host" });
       }
     })
     .catch((err) => next(err)); // In this case, we send error handling to the error handling middleware.

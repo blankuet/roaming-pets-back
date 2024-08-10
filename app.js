@@ -18,8 +18,11 @@ require("./config")(app);
 const indexRoutes = require("./routes/index.routes");
 app.use("/api", indexRoutes);
 
-const authRoutes = require("./routes/auth.routes");
-app.use("/auth", authRoutes);
+const hostRoutes = require("./routes/host.routes");
+app.use("/auth/host", hostRoutes);
+
+const guestRoutes = require("./routes/auth.routes");
+app.use("/auth", guestRoutes);
 
 const accommodationRoutes = require("./routes/accommodation.routes");
 app.use("/api/accommodation", accommodationRoutes);
