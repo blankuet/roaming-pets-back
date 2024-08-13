@@ -98,10 +98,10 @@ router.post("/login", (req, res, next) => {
 
       if (passwordCorrect) {
         // Deconstruct the user object to omit the password
-        const { _id, email, name } = foundHost;
+        const { _id, email, name, profileImage: imageUrl } = foundHost;
 
         // Create an object that will be set as the token payload
-        const payload = { _id, email, name };
+        const payload = { _id, email, name, imageUrl };
 
         // Create a JSON Web Token and sign it
         const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
@@ -110,7 +110,8 @@ router.post("/login", (req, res, next) => {
         });
 
         // Send the token as the response
-        res.status(200).json({ authToken: authToken, email: email, name: name });
+        console.log(imageUrl);
+        res.status(200).json({ authToken: authToken, email: email, name: name, imageUrl: imageUrl });
       } else {
         res.status(401).json({ message: "Unable to authenticate the host" });
       }
@@ -127,5 +128,30 @@ router.get("/verify", isAuthenticated, (req, res, next) => {
   // Send back the token payload object containing the user data
   res.status(200).json(req.payload);
 });
+
+//Ruta para subir una imagen de perfil
+router.post("/upload", isAuthenticated, async (req, res, next) => {
+  try {
+    const { imageUrl } = req.body;
+    console.log(imageUrl);
+    const userId = req.payload._id;  // Asume que el usuario autenticado está en el payload
+    // Buscar al usuario por ID
+    const host = await Host.findById(userId);
+
+    if (!host) {
+      return res.status(404).json({ message: "Host not found." });
+    }
+
+    // Actualizar el campo profileImage con la nueva URL
+    host.profileImage = imageUrl;
+    await host.save();
+
+    res.json({ message: "Profile image updated successfully" });
+  } catch (error) {
+    console.error('Error updating profile image:', error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 module.exports = router;
