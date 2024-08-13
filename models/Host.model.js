@@ -18,6 +18,11 @@ const hostSchema = new Schema(
       type: String,
       required: [true, "Password is required."],
     },
+    profileImage: {
+        type: String,
+        default: "",
+        required: false, 
+    },
     accommodations: [
       {
         type: Schema.Types.ObjectId, ref: "Accommodation",
