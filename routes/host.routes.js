@@ -111,7 +111,12 @@ router.post("/login", (req, res, next) => {
 
         // Send the token as the response
         console.log(imageUrl);
-        res.status(200).json({ authToken: authToken, email: email, name: name, imageUrl: imageUrl });
+        res.status(200).json({
+          authToken: authToken,
+          email: email,
+          name: name,
+          imageUrl: imageUrl,
+        });
       } else {
         res.status(401).json({ message: "Unable to authenticate the host" });
       }
@@ -119,11 +124,10 @@ router.post("/login", (req, res, next) => {
     .catch((err) => next(err)); // In this case, we send error handling to the error handling middleware.
 });
 
-// GET  /auth/verify  -  Used to verify JWT stored on the client
+// GET  /auth/host/verify  -  Used to verify JWT stored on the client
 router.get("/verify", isAuthenticated, (req, res, next) => {
   // If JWT token is valid the payload gets decoded by the
   // isAuthenticated middleware and is made available on `req.payload`
-  console.log(`req.payload`, req.payload);
 
   // Send back the token payload object containing the user data
   res.status(200).json(req.payload);
@@ -134,7 +138,7 @@ router.post("/upload", isAuthenticated, async (req, res, next) => {
   try {
     const { imageUrl } = req.body;
     console.log(imageUrl);
-    const userId = req.payload._id;  // Asume que el usuario autenticado está en el payload
+    const userId = req.payload._id; // Asume que el usuario autenticado está en el payload
     // Buscar al usuario por ID
     const host = await Host.findById(userId);
 
@@ -148,13 +152,13 @@ router.post("/upload", isAuthenticated, async (req, res, next) => {
 
     res.json({ message: "Profile image updated successfully" });
   } catch (error) {
-    console.error('Error updating profile image:', error);
+    console.error("Error updating profile image:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
 //Ruta para borrar el usuario
-router.delete('/delete', isAuthenticated, async (req, res) => {
+router.delete("/delete", isAuthenticated, async (req, res) => {
   try {
     const userId = req.payload._id; // El ID del usuario autenticado se obtiene de `req.payload`
 
@@ -162,15 +166,14 @@ router.delete('/delete', isAuthenticated, async (req, res) => {
     const deletedUser = await Host.findByIdAndDelete(userId);
 
     if (!deletedUser) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({ message: 'User deleted successfully' });
+    res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
-    console.error('Error deleting user:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Error deleting user:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
-
 
 module.exports = router;
