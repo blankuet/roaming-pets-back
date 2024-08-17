@@ -7,7 +7,7 @@ const hostSchema = new Schema(
       type: String,
       required: [true, "Name is required."],
     },
-    lastName: {
+    lastname: {
       type: String,
       required: [false, "Last name is required."],
     },
