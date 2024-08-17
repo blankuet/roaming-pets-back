@@ -18,7 +18,7 @@ const saltRounds = 10;
 
 // POST /auth/signup  - Creates a new user in the database
 router.post("/signup", (req, res, next) => {
-  const { email, password, name } = req.body;
+  const { email, password, name, lastname } = req.body;
 
   // Check if email or password or name are provided as empty strings
   if (email === "" || password === "" || name === "") {
@@ -58,7 +58,7 @@ router.post("/signup", (req, res, next) => {
 
       // Create the new user in the database
       // We return a pending promise, which allows us to chain another `then`
-      return Host.create({ email, password: hashedPassword, name });
+      return Host.create({ email, password: hashedPassword, name, lastname });
     })
     .then((createdHost) => {
       // Deconstruct the newly created user object to omit the password
@@ -98,7 +98,7 @@ router.post("/login", (req, res, next) => {
 
       if (passwordCorrect) {
         // Deconstruct the user object to omit the password
-        const { _id, email, name, profileImage: imageUrl, lastName } = foundHost;
+        const { _id, email, name, profileImage: imageUrl, lastname } = foundHost;
 
         // Create an object that will be set as the token payload
         const payload = { _id, email, name, imageUrl };
@@ -111,7 +111,7 @@ router.post("/login", (req, res, next) => {
 
         // Send the token as the response
         console.log(imageUrl);
-        res.status(200).json({ _id, authToken, email, name, lastName, imageUrl });
+        res.status(200).json({ _id, authToken, email, name, lastname, imageUrl });
       } else {
         res.status(401).json({ message: "Unable to authenticate the host" });
       }
@@ -174,7 +174,7 @@ router.delete('/delete', isAuthenticated, async (req, res) => {
 router.put("/update", isAuthenticated, async (req, res, next) => {
   console.log('we are on update')
   try {
-    const { id, name, lastName, email } = req.body;
+    const { id, name, lastname, email } = req.body;
     console.log(id)
 
     const user = await Host.findById(id);
@@ -184,7 +184,7 @@ router.put("/update", isAuthenticated, async (req, res, next) => {
     }
 
     user.name = name || user.name;
-    user.lastName = lastName || user.lastName;
+    user.lastname = lastname || user.lastname;
     user.email = email || user.email;
 
     await user.save();
