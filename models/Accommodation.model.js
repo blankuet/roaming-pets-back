@@ -1,5 +1,4 @@
 const { Schema, model } = require("mongoose");
-const { Booking } = require("./Booking.model");
 
 const accommodationSchema = new Schema(
   {
@@ -23,6 +22,11 @@ const accommodationSchema = new Schema(
       type: String,
       required: [true, "Description is required."],
     },
+    images: [
+      {
+        type: String, // Aquí almacenaremos las URLs o paths de las imágenes
+      },
+    ],
     bookings: [
       {
         type: Schema.Types.ObjectId,
