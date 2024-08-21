@@ -196,5 +196,34 @@ router.put("/update", isAuthenticated, async (req, res, next) => {
   }
 });
 
+// Obtener un Host por ID
+router.get('/:id', async (req, res) => {
+  try {
+    const host = await Host.findById(req.params.id).populate('reviews'); 
+    if (!host) {
+      return res.status(404).json({ error: 'Host not found' });
+    }
+    res.json(host);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching host data' });
+  }
+});
+
+// Agregar una nueva review
+router.post('/:id/reviews', async (req, res) => {
+  try {
+    const { rating, reviews } = req.body;
+    const host = await Host.findById(req.params.id);
+    if (!host) {
+      return res.status(404).json({ error: 'Host not found' });
+    }
+    host.reviews.push({ rating, reviews });
+    await host.save();
+    res.json(host.reviews[host.reviews.length - 1]);
+  } catch (error) {
+    res.status(500).json({ error: 'Error adding review' });
+  }
+});
+
 
 module.exports = router;

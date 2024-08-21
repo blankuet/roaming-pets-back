@@ -25,6 +25,7 @@ const guestSchema = new Schema(
     bookings: [{    
       type: Schema.Types.ObjectId, ref: "Booking",
     }],
+    review: [{rating: Number, review: String}]
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`
