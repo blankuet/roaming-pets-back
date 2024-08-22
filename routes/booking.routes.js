@@ -53,4 +53,27 @@ router.post(`/booking`, (req, res, next) => {
     });
 });
 
+// GET /booking/host
+router.get(`/booking/host`, (req, res, next) => {
+  const hostId = req.user.id;
+
+  Accommodation.find({ owner: hostId })
+    .then((accommodations) => {
+      const accommodationIds = accommodations.map(
+        (accommodation) => accommodation._id
+      );
+
+      return Booking.find({
+        accommodation: { $in: accommodationIds },
+      }).populate("accommodation", "name address");
+    })
+    .then((bookings) => res.json(bookings))
+    .catch((err) => {
+      res.status(500).json({
+        message: "Could not find the host's bookings",
+        error: err.message,
+      });
+    });
+});
+
 module.exports = router;

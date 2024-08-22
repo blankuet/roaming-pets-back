@@ -24,7 +24,7 @@ const accommodationSchema = new Schema(
     },
     images: [
       {
-        type: String, // Aquí almacenaremos las URLs o paths de las imágenes
+        type: String,
       },
     ],
     bookings: [
