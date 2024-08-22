@@ -18,12 +18,10 @@ const saltRounds = 10;
 
 // POST /auth/signup  - Creates a new user in the database
 router.post("/signup", (req, res, next) => {
-  const { email, password, name, pets } = req.body;
-
-  console.log(req.body)
+  const { email, password, name, lastname, pets } = req.body;
 
   // Check if email or password or name are provided as empty strings
-  if (email === "" || password === "" || name === "") {
+  if (email === "" || password === "" || name === "" ) {
     res.status(400).json({ message: "Provide email, password and name" });
     return;
   }
@@ -60,7 +58,7 @@ router.post("/signup", (req, res, next) => {
 
       // Create the new user in the database
       // We return a pending promise, which allows us to chain another `then`
-      return Guest.create({ email, password: hashedPassword, name, pets });
+      return Guest.create({ email, password: hashedPassword, name, lastname, pets });
     })
     .then((createdGuest) => {
       // Deconstruct the newly created user object to omit the password
@@ -100,10 +98,10 @@ router.post("/login", (req, res, next) => {
 
       if (passwordCorrect) {
         // Deconstruct the user object to omit the password
-        const { _id, email, name } = foundGuest;
+        const { _id, email, name, profileImage: imageUrl, lastname } = foundGuest;
 
         // Create an object that will be set as the token payload
-        const payload = { _id, email, name };
+        const payload = { _id, email, name, imageUrl };
 
         // Create a JSON Web Token and sign it
         const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
@@ -112,7 +110,7 @@ router.post("/login", (req, res, next) => {
         });
 
         // Send the token as the response
-        res.status(200).json({ authToken: authToken, email: email, name: name });
+        res.status(200).json({ _id, authToken, email, name, lastname, imageUrl });
       } else {
         res.status(401).json({ message: "Unable to authenticate the Guest" });
       }
@@ -189,6 +187,8 @@ router.put("/update", isAuthenticated, async (req, res, next) => {
     user.name = name || user.name;
     user.lastname = lastname || user.lastname;
     user.email = email || user.email;
+    user.pets = pets || user.pets;
+
 
     await user.save();
 
