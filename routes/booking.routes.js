@@ -77,3 +77,5 @@ router.get(`/booking/host`, (req, res, next) => {
 });
 
 module.exports = router;
+
+// booking
