@@ -7,6 +7,10 @@ const guestSchema = new Schema(
       type: String,
       required: [true, "Name is required."],
     },
+    lastname: {
+      type: String,
+      required: [true, "Last name is required."],
+    },
     email: {
       type: String,
       required: [true, "Email is required."],
@@ -18,6 +22,11 @@ const guestSchema = new Schema(
       type: String,
       required: [true, "Password is required."],
     },
+    profileImage: {
+        type: String,
+        default: "",
+        required: false, 
+    },
     pets: {
         type: Number,
         required: [true, "Pets is required."],
@@ -25,7 +34,7 @@ const guestSchema = new Schema(
     bookings: [{    
       type: Schema.Types.ObjectId, ref: "Booking",
     }],
-    review: [{rating: Number, review: String}]
+    reviews: [{rating: Number, review: String}]
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`

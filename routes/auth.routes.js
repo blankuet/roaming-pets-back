@@ -18,12 +18,10 @@ const saltRounds = 10;
 
 // POST /auth/signup  - Creates a new user in the database
 router.post("/signup", (req, res, next) => {
-  const { email, password, name, pets } = req.body;
-
-  console.log(req.body)
+  const { email, password, name, lastname, pets } = req.body;
 
   // Check if email or password or name are provided as empty strings
-  if (email === "" || password === "" || name === "") {
+  if (email === "" || password === "" || name === "" ) {
     res.status(400).json({ message: "Provide email, password and name" });
     return;
   }
@@ -60,7 +58,7 @@ router.post("/signup", (req, res, next) => {
 
       // Create the new user in the database
       // We return a pending promise, which allows us to chain another `then`
-      return Guest.create({ email, password: hashedPassword, name, pets });
+      return Guest.create({ email, password: hashedPassword, name, lastname, pets });
     })
     .then((createdGuest) => {
       // Deconstruct the newly created user object to omit the password
@@ -100,10 +98,10 @@ router.post("/login", (req, res, next) => {
 
       if (passwordCorrect) {
         // Deconstruct the user object to omit the password
-        const { _id, email, name } = foundGuest;
+        const { _id, email, name, profileImage: imageUrl, lastname } = foundGuest;
 
         // Create an object that will be set as the token payload
-        const payload = { _id, email, name };
+        const payload = { _id, email, name, imageUrl };
 
         // Create a JSON Web Token and sign it
         const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
@@ -112,7 +110,7 @@ router.post("/login", (req, res, next) => {
         });
 
         // Send the token as the response
-        res.status(200).json({ authToken: authToken, email: email, name: name });
+        res.status(200).json({ _id, authToken, email, name, lastname, imageUrl });
       } else {
         res.status(401).json({ message: "Unable to authenticate the Guest" });
       }
@@ -128,6 +126,77 @@ router.get("/verify", isAuthenticated, (req, res, next) => {
 
   // Send back the token payload object containing the user data
   res.status(200).json(req.payload);
+});
+
+//Ruta para subir una imagen de perfil
+router.post("/upload", isAuthenticated, async (req, res, next) => {
+  try {
+    const { imageUrl } = req.body;
+    console.log(imageUrl);
+    const userId = req.payload._id;  // Asume que el usuario autenticado está en el payload
+    // Buscar al usuario por ID
+    const guest = await Guest.findById(userId);
+
+    if (!guest) {
+      return res.status(404).json({ message: "Guest not found." });
+    }
+
+    // Actualizar el campo profileImage con la nueva URL
+    guest.profileImage = imageUrl;
+    await guest.save();
+
+    res.json({ message: "Profile image updated successfully" });
+  } catch (error) {
+    console.error('Error updating profile image:', error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//Ruta para borrar el usuario
+router.delete('/delete', isAuthenticated, async (req, res) => {
+  try {
+    const userId = req.payload._id; // El ID del usuario autenticado se obtiene de `req.payload`
+
+    // Buscar y eliminar el usuario en la base de datos
+    const deletedUser = await Guest.findByIdAndDelete(userId);
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+//ruta para editar el perfil del usuario
+router.put("/update", isAuthenticated, async (req, res, next) => {
+  console.log('we are on update')
+  try {
+    const { id, name, lastname, email } = req.body;
+    console.log(id)
+
+    const user = await Guest.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.name = name || user.name;
+    user.lastname = lastname || user.lastname;
+    user.email = email || user.email;
+    user.pets = pets || user.pets;
+
+
+    await user.save();
+
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 module.exports = router;
