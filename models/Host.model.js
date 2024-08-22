@@ -7,9 +7,9 @@ const hostSchema = new Schema(
       type: String,
       required: [true, "Name is required."],
     },
-    lastName: {
+    lastname: {
       type: String,
-      required: [false, "Last name is required."],
+      required: [true, "Last name is required."],
     },
     email: {
       type: String,
@@ -31,8 +31,8 @@ const hostSchema = new Schema(
       {
         type: Schema.Types.ObjectId, ref: "Accommodation",
       }
-    ]
-
+    ],
+    reviews: [{rating: Number, review: String}]
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`

@@ -18,7 +18,7 @@ const saltRounds = 10;
 
 // POST /auth/signup  - Creates a new user in the database
 router.post("/signup", (req, res, next) => {
-  const { email, password, name } = req.body;
+  const { email, password, name, lastname } = req.body;
 
   // Check if email or password or name are provided as empty strings
   if (email === "" || password === "" || name === "") {
@@ -58,7 +58,7 @@ router.post("/signup", (req, res, next) => {
 
       // Create the new user in the database
       // We return a pending promise, which allows us to chain another `then`
-      return Host.create({ email, password: hashedPassword, name });
+      return Host.create({ email, password: hashedPassword, name, lastname });
     })
     .then((createdHost) => {
       // Deconstruct the newly created user object to omit the password
@@ -98,13 +98,7 @@ router.post("/login", (req, res, next) => {
 
       if (passwordCorrect) {
         // Deconstruct the user object to omit the password
-        const {
-          _id,
-          email,
-          name,
-          profileImage: imageUrl,
-          lastName,
-        } = foundHost;
+        const { _id, email, name, profileImage: imageUrl, lastname } = foundHost;
 
         // Create an object that will be set as the token payload
         const payload = { _id, email, name, imageUrl };
@@ -117,9 +111,7 @@ router.post("/login", (req, res, next) => {
 
         // Send the token as the response
         console.log(imageUrl);
-        res
-          .status(200)
-          .json({ _id, authToken, email, name, lastName, imageUrl });
+        res.status(200).json({ _id, authToken, email, name, lastname, imageUrl });
       } else {
         res.status(401).json({ message: "Unable to authenticate the host" });
       }
@@ -127,7 +119,7 @@ router.post("/login", (req, res, next) => {
     .catch((err) => next(err)); // In this case, we send error handling to the error handling middleware.
 });
 
-// GET  /auth/host/verify  -  Used to verify JWT stored on the client
+// GET  /auth/verify  -  Used to verify JWT stored on the client
 router.get("/verify", isAuthenticated, (req, res, next) => {
   // If JWT token is valid the payload gets decoded by the
   // isAuthenticated middleware and is made available on `req.payload`
@@ -140,7 +132,7 @@ router.post("/upload", isAuthenticated, async (req, res, next) => {
   try {
     const { imageUrl } = req.body;
     console.log(imageUrl);
-    const userId = req.payload._id; // Asume que el usuario autenticado está en el payload
+    const userId = req.payload._id;  // Asume que el usuario autenticado está en el payload
     // Buscar al usuario por ID
     const host = await Host.findById(userId);
 
@@ -154,13 +146,13 @@ router.post("/upload", isAuthenticated, async (req, res, next) => {
 
     res.json({ message: "Profile image updated successfully" });
   } catch (error) {
-    console.error("Error updating profile image:", error);
+    console.error('Error updating profile image:', error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
 //Ruta para borrar el usuario
-router.delete("/delete", isAuthenticated, async (req, res) => {
+router.delete('/delete', isAuthenticated, async (req, res) => {
   try {
     const userId = req.payload._id; // El ID del usuario autenticado se obtiene de `req.payload`
 
@@ -168,22 +160,22 @@ router.delete("/delete", isAuthenticated, async (req, res) => {
     const deletedUser = await Host.findByIdAndDelete(userId);
 
     if (!deletedUser) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    res.status(200).json({ message: "User deleted successfully" });
+    res.status(200).json({ message: 'User deleted successfully' });
   } catch (error) {
-    console.error("Error deleting user:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
 //ruta para editar el perfil del usuario
 router.put("/update", isAuthenticated, async (req, res, next) => {
-  console.log("we are on update");
+  console.log('we are on update')
   try {
-    const { id, name, lastName, email } = req.body;
-    console.log(id);
+    const { id, name, lastname, email } = req.body;
+    console.log(id)
 
     const user = await Host.findById(id);
 
@@ -192,7 +184,7 @@ router.put("/update", isAuthenticated, async (req, res, next) => {
     }
 
     user.name = name || user.name;
-    user.lastName = lastName || user.lastName;
+    user.lastname = lastname || user.lastname;
     user.email = email || user.email;
 
     await user.save();
@@ -203,5 +195,35 @@ router.put("/update", isAuthenticated, async (req, res, next) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+// Obtener un Host por ID
+router.get('/:id', async (req, res) => {
+  try {
+    const host = await Host.findById(req.params.id).populate('reviews'); 
+    if (!host) {
+      return res.status(404).json({ error: 'Host not found' });
+    }
+    res.json(host);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching host data' });
+  }
+});
+
+// Agregar una nueva review
+router.post('/:id/reviews', async (req, res) => {
+  try {
+    const { rating, review } = req.body;
+    const host = await Host.findById(req.params.id);
+    if (!host) {
+      return res.status(404).json({ error: 'Host not found' });
+    }
+    host.reviews.push({ rating, review });
+    await host.save();
+    res.json(host.reviews[host.reviews.length - 1]);
+  } catch (error) {
+    res.status(500).json({ error: 'Error adding review' });
+  }
+});
+
 
 module.exports = router;

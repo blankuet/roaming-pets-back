@@ -1,5 +1,7 @@
 const { Schema, model } = require("mongoose");
+const { Booking } = require("./Booking.model");
 
+// TODO: Please make sure you edit the User model to whatever makes sense in this case
 const accommodationSchema = new Schema(
   {
     name: {
@@ -22,21 +24,19 @@ const accommodationSchema = new Schema(
       type: String,
       required: [true, "Description is required."],
     },
-    images: [
-      {
-        type: String,
-      },
-    ],
-    bookings: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Booking",
-      },
-    ],
+    bookings: [{
+      type: Schema.Types.ObjectId, ref: "Booking",
+    }],
+    review: [{ rating: Number, review: String }],
   },
-  { timestamps: true }
+  {
+    // this second object adds extra properties: `createdAt` and `updatedAt`
+    timestamps: true,
+  }
 );
 
 const Accommodation = model("Accommodation", accommodationSchema);
 
 module.exports = Accommodation;
+
+//merge
