@@ -24,9 +24,17 @@ const accommodationSchema = new Schema(
       type: String,
       required: [true, "Description is required."],
     },
-    bookings: [{
-      type: Schema.Types.ObjectId, ref: "Booking",
-    }],
+    images: [
+      {
+        type: String,
+      },
+    ],
+    bookings: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Booking",
+      },
+    ],
     review: [{ rating: Number, review: String }],
   },
   {
