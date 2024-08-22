@@ -38,3 +38,5 @@ const accommodationSchema = new Schema(
 const Accommodation = model("Accommodation", accommodationSchema);
 
 module.exports = Accommodation;
+
+//merge
