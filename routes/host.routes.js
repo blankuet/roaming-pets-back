@@ -212,12 +212,12 @@ router.get('/:id', async (req, res) => {
 // Agregar una nueva review
 router.post('/:id/reviews', async (req, res) => {
   try {
-    const { rating, reviews } = req.body;
+    const { rating, review } = req.body;
     const host = await Host.findById(req.params.id);
     if (!host) {
       return res.status(404).json({ error: 'Host not found' });
     }
-    host.reviews.push({ rating, reviews });
+    host.reviews.push({ rating, review });
     await host.save();
     res.json(host.reviews[host.reviews.length - 1]);
   } catch (error) {
