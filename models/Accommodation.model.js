@@ -35,7 +35,7 @@ const accommodationSchema = new Schema(
         ref: "Booking",
       },
     ],
-    review: [{ rating: Number, review: String }],
+    reviews: [{ rating: Number, review: String }],
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`

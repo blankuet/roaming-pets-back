@@ -199,4 +199,34 @@ router.put("/update", isAuthenticated, async (req, res, next) => {
   }
 });
 
+// Obtener un Guest por ID
+router.get('/:id', async (req, res) => {
+  try {
+    const guest = await Guest.findById(req.params.id).populate('reviews'); 
+    if (!guest) {
+      return res.status(404).json({ error: 'Guest not found' });
+    }
+    res.json(guest);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching guest data' });
+  }
+});
+
+// Agregar una nueva review
+router.post('/:id/reviews', async (req, res) => {
+  try {
+    const { rating, review } = req.body;
+    const guest = await Guest.findById(req.params.id);
+    if (!guest) {
+      return res.status(404).json({ error: 'Guest not found' });
+    }
+    guest.reviews.push({ rating, review });
+    await guest.save();
+    res.json(guest.reviews[guest.reviews.length - 1]);
+  } catch (error) {
+    res.status(500).json({ error: 'Error adding review' });
+  }
+});
+
+
 module.exports = router;

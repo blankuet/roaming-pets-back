@@ -28,7 +28,7 @@ router.get("/host/:id", (req, res, next) => {
 
 //GET /accommodations/:id
 router.get(`/:id`, (req, res, next) => {
-  Accommodation.findById(req.params.id)
+  Accommodation.findById(req.params.id).populate('reviews')
     .then((data) => res.json(data))
     .catch((err) => {
       res.status(500).json({ message: "Could not find the accommodation" });
@@ -66,6 +66,23 @@ router.put(`/:id`, async (req, res, next) => {
     res.json(updatedAccommodation);
   } catch (error) {
     res.status(500).json({ message: "Failed to update accommodation" });
+  }
+});
+
+// Agregar una nueva review
+
+router.post('/:id/reviews', async (req, res) => {
+  try {
+    const { rating, review } = req.body;
+    const accommodation = await Accommodation.findById(req.params.id);
+    if (!accommodation) {
+      return res.status(404).json({ error: 'Accommodation not found' });
+    }
+    accommodation.reviews.push({ rating, review });
+    await accommodation.save();
+    res.json(accommodation.reviews[accommodation.reviews.length - 1]);
+  } catch (error) {
+    res.status(500).json({ error: 'Error adding review' });
   }
 });
 
