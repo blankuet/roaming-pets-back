@@ -30,7 +30,7 @@ const accommodationRoutes = require("./routes/accommodation.routes");
 app.use("/api/accommodation", accommodationRoutes);
 
 const bookingRoutes = require("./routes/booking.routes");
-app.use("/api/host/booking", bookingRoutes);
+app.use("/api/booking", bookingRoutes);
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);

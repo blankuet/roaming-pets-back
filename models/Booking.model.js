@@ -14,9 +14,10 @@ const BookingSchema = new Schema(
       min: Date.now,
       max: "3024-01-01",
     },
-    guestEmail: {
-      type: String,
-      required: true,
+    guestId: {
+      type: Schema.Types.ObjectId,
+      ref: "Guest",
+      required: true
     },
     accommodation: {
       type: Schema.Types.ObjectId,

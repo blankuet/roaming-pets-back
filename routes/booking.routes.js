@@ -4,7 +4,7 @@ const Booking = require("../models/Booking.model");
 const Accommodation = require("../models/Accommodation.model");
 
 // GET /booking
-router.get(`/booking`, (req, res, next) => {
+router.get(`/`, (req, res, next) => {
   Booking.find()
     .populate("accommodation", "name address")
     .then((data) => res.json(data))
@@ -13,8 +13,36 @@ router.get(`/booking`, (req, res, next) => {
     });
 });
 
+// GET /booking/host
+router.get(`/host/:id`, (req, res, next) => {
+  const hostId = req.params.id;
+  console.log(hostId)
+
+  Accommodation.find({ hostId: hostId })
+    .then((accommodations) => {
+      console.log(accommodations)
+      const accommodationIds = accommodations.map(
+        (accommodation) => accommodation._id
+      );
+
+      return Booking.find({
+        accommodation: { $in: accommodationIds },
+      }).populate("accommodation", "name address");
+    })
+    .then((bookings) => {
+      console.log(bookings)
+      res.json(bookings)
+})
+    .catch((err) => {
+      res.status(500).json({
+        message: "Could not find the host's bookings",
+        error: err.message,
+      });
+    });
+});
+
 // GET /booking/:id
-router.get(`/booking/:id`, (req, res, next) => {
+router.get(`/:id`, (req, res, next) => {
   Booking.findById(req.params.id)
     .populate("accommodation", "name address")
     .then((data) => res.json(data))
@@ -24,18 +52,16 @@ router.get(`/booking/:id`, (req, res, next) => {
 });
 
 // POST /booking
-router.post(`/booking`, (req, res, next) => {
-  const { guestEmail, accommodationId, dateFrom, dateTo } = req.body;
+router.post(`/`, (req, res, next) => {
+  const { guestId, accommodationId, dateFrom, dateTo } = req.body;
+  console.log(guestId, accommodationId, dateFrom, dateTo)
 
-  const newBooking = new Booking({
+  const newBooking = Booking.create({
     dateFrom,
     dateTo,
-    guestEmail,
+    guestId,
     accommodation: accommodationId,
-  });
-
-  newBooking
-    .save()
+  })
     .then((booking) => {
       return Accommodation.findByIdAndUpdate(
         accommodationId,
@@ -53,28 +79,7 @@ router.post(`/booking`, (req, res, next) => {
     });
 });
 
-// GET /booking/host
-router.get(`/booking/host`, (req, res, next) => {
-  const hostId = req.user.id;
 
-  Accommodation.find({ owner: hostId })
-    .then((accommodations) => {
-      const accommodationIds = accommodations.map(
-        (accommodation) => accommodation._id
-      );
-
-      return Booking.find({
-        accommodation: { $in: accommodationIds },
-      }).populate("accommodation", "name address");
-    })
-    .then((bookings) => res.json(bookings))
-    .catch((err) => {
-      res.status(500).json({
-        message: "Could not find the host's bookings",
-        error: err.message,
-      });
-    });
-});
 
 module.exports = router;
 

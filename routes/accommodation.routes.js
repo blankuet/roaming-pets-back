@@ -39,7 +39,8 @@ router.get(`/:id`, (req, res, next) => {
 
 router.post(`/host/:id`, async (req, res, next) => {
   try {
-    const accommodation = await Accommodation.create(req.body);
+    const { name, address, price, maxPersons, description, images } = req.body;
+    const accommodation = await Accommodation.create({name, address, price, maxPersons, description, images, hostId: req.params.id});
     const host = await Host.findById(req.params.id);
 
     if (!host) {
@@ -52,6 +53,19 @@ router.post(`/host/:id`, async (req, res, next) => {
     res.status(201).json({ accommodation, host });
   } catch (error) {
     res.status(500).json({ message: "Error creating accommodation", error });
+  }
+});
+
+router.put('/:id/images', async (req, res) => {
+  try {
+    console.log(req.body);
+    const { id } = req.params;
+    const accommodation = await Accommodation.findById(id);
+    const images = [...accommodation.images, ...req.body.images];
+    const result = await Accommodation.findByIdAndUpdate(id, { images });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating images" });
   }
 });
 
