@@ -24,6 +24,10 @@ const accommodationSchema = new Schema(
       type: String,
       required: [true, "Description is required."],
     },
+    hostId: {
+      type: Schema.Types.ObjectId,
+      ref: "Host",
+    },
     images: [
       {
         type: String,
