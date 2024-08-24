@@ -27,7 +27,7 @@ router.get(`/host/:id`, (req, res, next) => {
 
       return Booking.find({
         accommodation: { $in: accommodationIds },
-      }).populate("accommodation", "name address");
+      }).populate({ path:"accommodation", select: "name address hostEmail" });
     })
     .then((bookings) => {
       console.log(bookings)
