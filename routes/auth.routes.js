@@ -98,10 +98,10 @@ router.post("/login", (req, res, next) => {
 
       if (passwordCorrect) {
         // Deconstruct the user object to omit the password
-        const { _id, email, name, profileImage: imageUrl, lastname } = foundGuest;
+        const { _id, email, name, profileImage: imageUrl, lastname, pets } = foundGuest;
 
         // Create an object that will be set as the token payload
-        const payload = { _id, email, name, imageUrl };
+        const payload = { _id, email, name, imageUrl, pets };
 
         // Create a JSON Web Token and sign it
         const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
@@ -110,7 +110,7 @@ router.post("/login", (req, res, next) => {
         });
 
         // Send the token as the response
-        res.status(200).json({ _id, authToken, email, name, lastname, imageUrl });
+        res.status(200).json({ _id, authToken, email, name, lastname, imageUrl, pets });
       } else {
         res.status(401).json({ message: "Unable to authenticate the Guest" });
       }
@@ -129,7 +129,7 @@ router.get("/verify", isAuthenticated, (req, res, next) => {
 });
 
 //Ruta para subir una imagen de perfil
-router.post("/upload", isAuthenticated, async (req, res, next) => {
+router.post("/guest/upload", isAuthenticated, async (req, res, next) => {
   try {
     const { imageUrl } = req.body;
     console.log(imageUrl);
@@ -172,13 +172,13 @@ router.delete('/delete', isAuthenticated, async (req, res) => {
 });
 
 //ruta para editar el perfil del usuario
-router.put("/update", isAuthenticated, async (req, res, next) => {
+router.put("/guest/update", isAuthenticated, async (req, res, next) => {
   console.log('we are on update')
   try {
-    const { id, name, lastname, email } = req.body;
+    const { id, name, lastname, email, pets } = req.body;
     console.log(id)
 
-    const user = await Guest.findById(id);
+    let user = await Guest.findById(id);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
