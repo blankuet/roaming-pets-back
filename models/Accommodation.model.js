@@ -20,6 +20,10 @@ const accommodationSchema = new Schema(
       type: Number,
       required: [true, "Max persons is required."],
     },
+    city: {
+      type: String,
+      required: [true, "City is required."],
+    },
     description: {
       type: String,
       required: [true, "Description is required."],

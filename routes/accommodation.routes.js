@@ -39,8 +39,8 @@ router.get(`/:id`, (req, res, next) => {
 
 router.post(`/host/:id`, async (req, res, next) => {
   try {
-    const { name, address, price, maxPersons, description, images } = req.body;
-    const accommodation = await Accommodation.create({name, address, price, maxPersons, description, images, hostId: req.params.id});
+    const { name, address, price, maxPersons, city, description, images } = req.body;
+    const accommodation = await Accommodation.create({name, address, price, maxPersons, city, description, images, hostId: req.params.id});
     const host = await Host.findById(req.params.id);
 
     if (!host) {
