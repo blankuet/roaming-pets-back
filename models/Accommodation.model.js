@@ -28,6 +28,7 @@ const accommodationSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Host",
     },
+    hostEmail: String,
     images: [
       {
         type: String,

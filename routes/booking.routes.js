@@ -79,6 +79,19 @@ router.post(`/`, (req, res, next) => {
     });
 });
 
+// GET /booking/guest/:id
+router.get('/guest/:id', (req, res, next) => {
+  const guestId = req.params.id;
+
+  Booking.find({ guestId: guestId })
+    .populate('accommodation', 'name address price')
+    .then((bookings) => {
+      res.json(bookings);
+    })
+    .catch((err) => {
+      res.status(500).json({ message: 'Could not find the guest\'s bookings', error: err.message });
+    });
+});
 
 
 module.exports = router;
