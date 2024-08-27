@@ -100,4 +100,27 @@ router.post('/:id/reviews', async (req, res) => {
   }
 });
 
+// Ruta para borrar una accommodation
+router.delete(`/:id`, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedAccommodation = await Accommodation.findByIdAndDelete(id);
+
+    if (!deletedAccommodation) {
+      return res.status(404).json({ message: "Accommodation not found" });
+    }
+
+    // Si también deseas eliminar la referencia en el host, puedes hacer lo siguiente:
+    const host = await Host.findById(deletedAccommodation.hostId);
+    if (host) {
+      host.accommodations.pull(deletedAccommodation._id);
+      await host.save();
+    }
+
+    res.status(200).json({ message: "Accommodation deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete accommodation", error });
+  }
+});
+
 module.exports = router;
