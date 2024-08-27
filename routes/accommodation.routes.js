@@ -28,7 +28,7 @@ router.get("/host/:id", (req, res, next) => {
 
 //GET /accommodations/:id
 router.get(`/:id`, (req, res, next) => {
-  Accommodation.findById(req.params.id).populate('reviews')
+  Accommodation.findById(req.params.id).populate(`hostId`, `name email` ) .populate('reviews')
     .then((data) => res.json(data))
     .catch((err) => {
       res.status(500).json({ message: "Could not find the accommodation" });
