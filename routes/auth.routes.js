@@ -21,7 +21,7 @@ router.post("/signup", (req, res, next) => {
   const { email, password, name, lastname, pets } = req.body;
 
   // Check if email or password or name are provided as empty strings
-  if (email === "" || password === "" || name === "" ) {
+  if (email === "" || password === "" || name === "") {
     res.status(400).json({ message: "Provide email, password and name" });
     return;
   }
@@ -58,7 +58,13 @@ router.post("/signup", (req, res, next) => {
 
       // Create the new user in the database
       // We return a pending promise, which allows us to chain another `then`
-      return Guest.create({ email, password: hashedPassword, name, lastname, pets });
+      return Guest.create({
+        email,
+        password: hashedPassword,
+        name,
+        lastname,
+        pets,
+      });
     })
     .then((createdGuest) => {
       // Deconstruct the newly created user object to omit the password
@@ -98,7 +104,14 @@ router.post("/login", (req, res, next) => {
 
       if (passwordCorrect) {
         // Deconstruct the user object to omit the password
-        const { _id, email, name, profileImage: imageUrl, lastname, pets } = foundGuest;
+        const {
+          _id,
+          email,
+          name,
+          profileImage: imageUrl,
+          lastname,
+          pets,
+        } = foundGuest;
 
         // Create an object that will be set as the token payload
         const payload = { _id, email, name, imageUrl, pets };
@@ -110,7 +123,9 @@ router.post("/login", (req, res, next) => {
         });
 
         // Send the token as the response
-        res.status(200).json({ _id, authToken, email, name, lastname, imageUrl, pets });
+        res
+          .status(200)
+          .json({ _id, authToken, email, name, lastname, imageUrl, pets });
       } else {
         res.status(401).json({ message: "Unable to authenticate the Guest" });
       }
@@ -133,7 +148,7 @@ router.post("/guest/upload", isAuthenticated, async (req, res, next) => {
   try {
     const { imageUrl } = req.body;
     console.log(imageUrl);
-    const userId = req.payload._id;  // Asume que el usuario autenticado está en el payload
+    const userId = req.payload._id; // Asume que el usuario autenticado está en el payload
     // Buscar al usuario por ID
     const guest = await Guest.findById(userId);
 
@@ -147,13 +162,13 @@ router.post("/guest/upload", isAuthenticated, async (req, res, next) => {
 
     res.json({ message: "Profile image updated successfully" });
   } catch (error) {
-    console.error('Error updating profile image:', error);
+    console.error("Error updating profile image:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
 //Ruta para borrar el usuario
-router.delete('/delete', isAuthenticated, async (req, res) => {
+router.delete("/guest/delete", isAuthenticated, async (req, res) => {
   try {
     const userId = req.payload._id; // El ID del usuario autenticado se obtiene de `req.payload`
 
@@ -161,22 +176,22 @@ router.delete('/delete', isAuthenticated, async (req, res) => {
     const deletedUser = await Guest.findByIdAndDelete(userId);
 
     if (!deletedUser) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({ message: 'User deleted successfully' });
+    res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
-    console.error('Error deleting user:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Error deleting user:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
 //ruta para editar el perfil del usuario
 router.put("/guest/update", isAuthenticated, async (req, res, next) => {
-  console.log('we are on update')
+  console.log("we are on update");
   try {
     const { id, name, lastname, email, pets } = req.body;
-    console.log(id)
+    console.log(id);
 
     let user = await Guest.findById(id);
 
@@ -189,7 +204,6 @@ router.put("/guest/update", isAuthenticated, async (req, res, next) => {
     user.email = email || user.email;
     user.pets = pets || user.pets;
 
-
     await user.save();
 
     res.status(200).json({ user });
@@ -200,33 +214,32 @@ router.put("/guest/update", isAuthenticated, async (req, res, next) => {
 });
 
 // Obtener un Guest por ID
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
-    const guest = await Guest.findById(req.params.id).populate('reviews'); 
+    const guest = await Guest.findById(req.params.id).populate("reviews");
     if (!guest) {
-      return res.status(404).json({ error: 'Guest not found' });
+      return res.status(404).json({ error: "Guest not found" });
     }
     res.json(guest);
   } catch (error) {
-    res.status(500).json({ error: 'Error fetching guest data' });
+    res.status(500).json({ error: "Error fetching guest data" });
   }
 });
 
 // Agregar una nueva review
-router.post('/:id/reviews', async (req, res) => {
+router.post("/:id/reviews", async (req, res) => {
   try {
     const { rating, review } = req.body;
     const guest = await Guest.findById(req.params.id);
     if (!guest) {
-      return res.status(404).json({ error: 'Guest not found' });
+      return res.status(404).json({ error: "Guest not found" });
     }
     guest.reviews.push({ rating, review });
     await guest.save();
     res.json(guest.reviews[guest.reviews.length - 1]);
   } catch (error) {
-    res.status(500).json({ error: 'Error adding review' });
+    res.status(500).json({ error: "Error adding review" });
   }
 });
-
 
 module.exports = router;
